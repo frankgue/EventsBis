@@ -5,9 +5,13 @@
 
     <p>Description : {{ $event->description }}</p>
 
-    <a class="btn btn-primary" href="{{ route('events.edit', $event->id) }}">Modifier</a>
+    <a class="btn btn-primary" href="{{ route('events.edit', $event->slug) }}">Modifier</a>
 
-    <form class="inline-block" action="{{ route('events.destroy', $event->id) }}" method="post">
+    <form class="inline-block"
+        action="{{ route('events.destroy', $event->slug) }}"
+        method="post"
+        onsubmit="return confirm('Voulez-vous vraiment le supprimer?')"
+    >
         {{ csrf_field() }}
         {{ method_field('DELETE') }}
         <input type="submit" class="btn btn-danger" value="Supprimer">

@@ -3,7 +3,7 @@
 @section('content')
     <h1>Modifier l'éEvenement #{{ $event->id}}.</h1>
 
-    <form class="" action="{{ route('events.update', $event->id) }}" method="post">
+    <form class="" action="{{ route('events.update', $event->slug) }}" method="post">
         {{ csrf_field()}}
         {{ method_field('PUT')}}
 

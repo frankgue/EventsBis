@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EventFormRequest;
 use Illuminate\Http\Request;
 use App\Models\Event;
+use MercurySeries\Flashy\Flashy;
 
 class EventsController extends Controller
 {
@@ -41,11 +42,10 @@ class EventsController extends Controller
     {
         Event::create([
             'title' => $request->title,
-            'description' => $request->description
+            'description' => $request->description,
         ]);
-
-        session()->flash('notification.message', 'Evenement créé avec succès!');
-        session()->flash('notification.type', 'success');
+        Flashy::message('Evénement Créé avec succès!');
+        //flash('Evénement Créé avec succès!');
 
         return redirect()->route('home');
     }
@@ -56,9 +56,9 @@ class EventsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($slug)
     {
-        $event = Event::findOrFail($id);
+        $event = Event::whereSlug($slug)->firstOrFail();
 
         return view('events.show', compact('event'));
     }
@@ -69,9 +69,9 @@ class EventsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($slug)
     {
-        $event = Event::findOrFail($id);
+        $event = Event::whereSlug($slug)->firstOrFail();
 
         return view('events.edit', compact('event'));
     }
@@ -83,18 +83,19 @@ class EventsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(EventFormRequest $request, $id)
+    public function update(EventFormRequest $request, $slug)
     {
-        $event = Event::findOrFail($id);
+        $event = Event::whereSlug($slug)->firstOrFail();
 
         $event->update([
             'title' => $request->title,
-            'description' => $request->description
+            'description' => $request->description,
         ]);
 
-        session()->flash('notification.message', 'Evénement #'. $event->id .' modifié avec succès!');
-        session()->flash('notification.type', 'success');
-        return redirect()->route('events.show', $id);
+        Flashy::primary(sprintf('Evénement "%s" supprimé avec succès!', $event->title));
+
+        //flash('Evénement #'. $event->id .' modifié avec succès!');
+        return redirect()->route('events.show', $event->slug);
     }
 
     /**
@@ -103,11 +104,13 @@ class EventsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($slug)
     {
-        Event::destroy($id);
-        session()->flash('notification.message', 'Evénement supprimé avec succès!');
-        session()->flash('notification.type', 'danger');
+        $event = Event::whereSlug($slug)->firstOrFail();
+        $event->delete();
+
+        flashy()->error(sprintf('Evénement "%s" supprimé avec succès!', $event->title));
+        //flash('Evénement supprimé avec succès!', 'danger');
         return redirect()->route('home');
     }
 }
